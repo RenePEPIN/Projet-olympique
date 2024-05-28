@@ -1,1 +1,0 @@
-web: gunicorn olympique_app.wsgi --log-file -
