@@ -1,0 +1,7 @@
+Documentation du serializers
+============================
+
+.. automodule:: base.serializers
+    :members:
+    :show-inheritance:
+    :no-index:

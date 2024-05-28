@@ -1,0 +1,4 @@
+myenv/
+
+# Ignore le fichier .env contenant les variables d'environnement
+.env

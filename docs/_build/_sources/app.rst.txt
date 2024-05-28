@@ -1,0 +1,6 @@
+Documentation du module app
+===========================
+
+.. automodule:: base.app
+    :members:
+    :show-inheritance:
