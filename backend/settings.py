@@ -13,20 +13,27 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from decouple import config 
+import dj_database_url 
+import django_heroku 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Print DATABASE_URL (for debugging purposes, remove in production)
+# print(os.environ.get('DATABASE_URL'))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'sc%oco$+(3$z$at=z4j)#l-+ym)+_b11389mdt2^12m$bf63%@'
+SECRET_KEY = os.getenv('SECRET_KEY', 'c2MlY29jbyQKKDMkcyRhdD16NGopI2wtK3ltKS5fYjExMzg5bWR0Ml4xMm0kYmY2MyVAYQ==')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'olympique_app.herokuapp.com']
+ALLOWED_HOSTS = ['localhost','127.0.0.1',  'olympique_app.herokuapp.com']
 
 
 # Application definition
@@ -44,6 +51,7 @@ INSTALLED_APPS = [
     'storages',
 
     'base.apps.BaseConfig',
+    'whitenoise.runserver_nostic',
 ]
 
 
@@ -93,15 +101,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'frontend/build')
-        ],
+        'DIRS': [os.path.join(BASE_DIR, 'frontend/build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,27 +129,24 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
+#     'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 # }
-
-#Database
-#https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 DATABASES = {
    'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'Olympique_app_database',
-       'USER': 'postgres',
-       'PASSWORD': os.environ.get('DB_PASS'),
-       'HOST': os.environ.get('HOST'),
+       'ENGINE': 'django.db.backends.postgresql_psycopg2',
+       'NAME': config('Olympique_app_database'),
+       'USER': config('postgres'),
+       'PASSWORD': config('DB_PASS'),
+       'HOST': config('HOST'),
        'PORT': '5432',
        'TEST': {
            'NAME': 'Olympique_app_test',
        },
    }
 }
+
+db_from_env = dj_database_url = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 
 # Password validation
@@ -183,27 +188,19 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/images/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
     BASE_DIR / 'frontend/build/static'
 ]
 
-
 MEDIA_ROOT = BASE_DIR / 'static/images'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
 
-# Dont forget to reset database connection and hide password
-#AWS_QUERYSTRING_AUTH = False
-#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-#AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-#AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-
-#AWS_STORAGE_BUCKET_NAME = 'proshop-bucket-demo'
-
-
 if os.getcwd() == '/app':
     DEBUG = False
+
+django_heroku.settings(locals())

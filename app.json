@@ -1,0 +1,17 @@
+{
+    "name": "olympique_app",
+    "scripts": {
+        "postdeploy": "cd frontend && npm install && npm run build && cd .. && cd olympique_app && pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
+    },
+    "env": {
+        "DJANGO_SETTINGS_MODULE": "backend.settings"
+    },
+    "buildpacks": [
+        {
+            "url": "heroku/nodejs"
+        },
+        {
+            "url": "heroku/python"
+        }
+    ]
+}
